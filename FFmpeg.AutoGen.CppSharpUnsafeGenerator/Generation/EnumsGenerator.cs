@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using FFmpeg.AutoGen.CppSharpUnsafeGenerator.Definitions;
 
 namespace FFmpeg.AutoGen.CppSharpUnsafeGenerator.Generation;
@@ -7,6 +8,11 @@ internal sealed class EnumsGenerator : GeneratorBase<EnumerationDefinition>
 {
     public EnumsGenerator(string path, GenerationContext context) : base(path, context)
     {
+    }
+
+    public override IEnumerable<string> Usings()
+    {
+        yield return "System";
     }
 
     public static void Generate(string path, GenerationContext context)
@@ -23,7 +29,7 @@ internal sealed class EnumsGenerator : GeneratorBase<EnumerationDefinition>
         // if every item in the enum is in the form 1 << n, then we will treat it
         // as a flags enum
         if (@enum.Items.All(test => test.Value.Contains("<<")))
-            WriteLine("[System.Flags]");
+            WriteLine("[Flags]");
         
         WriteLine($"public enum {@enum.Name} : {@enum.TypeName}");
 
