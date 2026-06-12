@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Linq;
+using System.Text.RegularExpressions;
 using CppSharp.AST;
 using CppSharp.AST.Extensions;
 using FFmpeg.AutoGen.CppSharpUnsafeGenerator.Definitions;
 
 namespace FFmpeg.AutoGen.CppSharpUnsafeGenerator.Processing;
 
-internal class EnumerationProcessor
+internal partial class EnumerationProcessor
 {
     private readonly ProcessingContext _context;
 
@@ -81,7 +82,7 @@ internal class EnumerationProcessor
                     new EnumerationItem
                     {
                         Name = x.Name,
-                        Value = ConvertValue(x.Value, enumeration.BuiltinType.Type).ToString(),
+                        Value = ConvertValue(x.Expression, x.Value, enumeration.BuiltinType.Type).ToString(),
                         Content = x.Comment?.BriefText
                     })
                 .ToArray()
@@ -90,9 +91,24 @@ internal class EnumerationProcessor
         _context.AddDefinition(definition);
     }
 
-    private static object ConvertValue(ulong value, PrimitiveType primitiveType)
+    // A regular expression that looks if the expression ends in "= 1 << n" (with any
+    // number of spaces between the elements.
+    [GeneratedRegex(@"=\s*1\s*<<\s*(\d+)\s*$")]
+    private static partial Regex CheckForBitExpression();
+
+    private static string ConvertValue(string expression, ulong value, PrimitiveType primitiveType)
     {
-        return primitiveType switch
+        // Check if the expression is of the form 1 << n. If it is, preserve the original definition
+        // instead of collapsing the value.
+        if (CheckForBitExpression().Match(expression) is { Success: true } match)
+        {
+            // Keep it as a 1 << n in the output. We will always
+            // return it in the form "1 << n" with that exact spacing.
+            return $"1 << {match.Groups[1].Value}";
+        }
+
+        // Otherwise, fallback on using the compiler's value
+        object compilerValue = primitiveType switch
         {
             PrimitiveType.Int => value > int.MaxValue ? (int)value : value,
             PrimitiveType.UInt => value,
@@ -100,5 +116,6 @@ internal class EnumerationProcessor
             PrimitiveType.ULong => value,
             _ => throw new NotSupportedException()
         };
+        return compilerValue.ToString();
     }
 }
