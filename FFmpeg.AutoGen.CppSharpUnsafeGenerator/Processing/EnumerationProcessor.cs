@@ -104,7 +104,16 @@ internal partial class EnumerationProcessor
         {
             // Keep it as a 1 << n in the output. We will always
             // return it in the form "1 << n" with that exact spacing.
-            return $"1 << {match.Groups[1].Value}";
+            var suffix = primitiveType switch
+            {
+                PrimitiveType.Int => "",
+                PrimitiveType.UInt => "u",
+                PrimitiveType.Long => "l",
+                PrimitiveType.ULong => "ul",
+                _ => throw new NotSupportedException()
+            };
+            
+            return $"1{suffix} << {match.Groups[1].Value}";
         }
 
         // Otherwise, fallback on using the compiler's value
