@@ -1,3 +1,5 @@
+using System;
+
 namespace FFmpeg.AutoGen.Abstractions;
 
 public enum AVActiveFormatDescription : int
@@ -1051,7 +1053,7 @@ public enum AVFormatCommandID : int
 }
 
 /// <summary>Flags for frame cropping.</summary>
-[System.Flags]
+[Flags]
 public enum AvFrameCrop : int
 {
     /// <summary>Apply the maximum possible cropping, even if it requires setting the AVFrame.data[] entries to unaligned pointers. Passing unaligned data to FFmpeg API is generally not allowed, and causes undefined behavior (such as crashes). You can pass unaligned data only to FFmpeg APIs that are explicitly documented to accept it. Use this flag only if you absolutely know what you are doing.</summary>
@@ -1154,7 +1156,7 @@ public enum AVHWDeviceType : int
 }
 
 /// <summary>Flags to apply to frame mappings.</summary>
-[System.Flags]
+[Flags]
 public enum AvHwframeMap : int
 {
     /// <summary>The mapping must be readable.</summary>
@@ -2071,7 +2073,7 @@ public enum AVTimebaseSource : int
     @AVFMT_TBCF_R_FRAMERATE = 2,
 }
 
-[System.Flags]
+[Flags]
 public enum AVTimecodeFlag : int
 {
     /// <summary>timecode is drop frame</summary>
@@ -2146,7 +2148,7 @@ public enum SwsDither : int
     @SWS_DITHER_MAX_ENUM = 2147483647,
 }
 
-[System.Flags]
+[Flags]
 public enum SwsFlags : int
 {
     /// <summary>fast bilinear filtering</summary>
